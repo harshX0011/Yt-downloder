@@ -235,7 +235,9 @@ a { color: var(--accent); }
     <h2>What it does download, for real</h2>
     <p class="muted">
       An allowlist of sources that publish their media openly, with nothing to
-      circumvent. Extend it with <code>ALLOWED_EXTRACTORS</code>.
+      circumvent. The app offers each one as a one-click example, so a real file
+      arrives without hunting for a link first. Extend it with
+      <code>ALLOWED_EXTRACTORS</code>.
     </p>
     <div class="panel table-scroll">
       <table>
@@ -247,6 +249,8 @@ a { color: var(--accent); }
           <tr><td>Wikimedia Commons</td><td><code>commons.wikimedia.org</code></td><td>Freely licensed media</td></tr>
           <tr><td>PeerTube</td><td><code>any instance</code></td><td>Open, self-hosted federated video</td></tr>
           <tr><td>media.ccc.de</td><td><code>media.ccc.de</code></td><td>Creative Commons conference recordings</td></tr>
+          <tr><td>TED</td><td><code>ted.com</code></td><td>Creative Commons talks TED publishes for download</td></tr>
+          <tr><td>Odysee and LBRY</td><td><code>odysee.com</code></td><td>An open protocol whose files are meant to be retrieved</td></tr>
           <tr><td>Direct media URL</td><td><code>any public host</code></td><td>A link straight to a file, such as a published .mp4</td></tr>
         </tbody>
       </table>
@@ -292,7 +296,7 @@ docker compose up --build
       cookies and its own extractor allowlist pinned to the list above.
     </p>
     <p>
-      102 tests, linted, and CI builds the container image and smoke-tests it
+      107 tests, linted, and CI builds the container image and smoke-tests it
       running on every push.
     </p>
   </section>

@@ -241,6 +241,25 @@ async def policy(request: Request) -> SourcePolicy:
     )
 
 
+async def _probe_source(
+    url: str, kind: SourceKind, settings: Settings,
+) -> tuple[object, SourceKind]:
+    """Probe a non-YouTube URL, correcting the routing guess when it was wrong.
+
+    `sources.classify` decides from the path alone, so a page whose URL merely
+    ends in a media extension (a Wikimedia `File:....webm` page, for one) is
+    guessed to be a direct file. The origin settles it: when that fetch comes
+    back as a document rather than media, the extractor allowlist takes over.
+    """
+    if kind is SourceKind.DIRECT_MEDIA:
+        try:
+            return await probe_direct_media(url, settings), SourceKind.DIRECT_MEDIA
+        except ExtractionError as exc:
+            if exc.code != "not_media":
+                raise
+    return await probe_extractor_source(url, settings), SourceKind.EXTRACTOR
+
+
 @app.post(
     "/api/inspect",
     response_model=InspectResponse,
@@ -289,15 +308,11 @@ async def inspect(request: Request, payload: InspectRequest) -> InspectResponse:
             ],
         )
 
-    probe = (
-        await probe_direct_media(validated.url, settings)
-        if decision.kind is SourceKind.DIRECT_MEDIA
-        else await probe_extractor_source(validated.url, settings)
-    )
+    probe, resolved_kind = await _probe_source(validated.url, decision.kind, settings)
 
     return InspectResponse(
         url=validated.url,
-        source_kind=decision.kind.value,
+        source_kind=resolved_kind.value,
         source_name=probe.source_name,
         title=probe.title,
         uploader=probe.uploader,
@@ -340,11 +355,7 @@ async def start_download(request: Request, payload: DownloadRequest) -> Download
 
     # Re-probe rather than trusting the client: the allowlist check and the
     # size and duration ceilings must hold at download time too.
-    probe = (
-        await probe_direct_media(validated.url, settings)
-        if decision.kind is SourceKind.DIRECT_MEDIA
-        else await probe_extractor_source(validated.url, settings)
-    )
+    probe, resolved_kind = await _probe_source(validated.url, decision.kind, settings)
 
     chosen_id = payload.format_id or probe.recommended_format_id
     chosen = next((f for f in probe.formats if f.format_id == chosen_id), None)
@@ -365,7 +376,7 @@ async def start_download(request: Request, payload: DownloadRequest) -> Download
     job = manager.create(validated.url, title=probe.title)
     job.total_bytes = chosen.filesize_bytes if chosen else probe.total_bytes
 
-    if decision.kind is SourceKind.DIRECT_MEDIA:
+    if resolved_kind is SourceKind.DIRECT_MEDIA:
         def factory():
             return run_direct_download(
                 validated.url,

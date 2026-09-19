@@ -149,6 +149,64 @@ def test_inspect_direct_media_offers_a_download(client, stub_direct_probe) -> No
     assert body["formats"][0]["container"] == "mp4"
 
 
+def test_a_page_url_ending_in_mp4_falls_back_to_the_extractor(
+    client, monkeypatch,
+) -> None:
+    """A wiki page whose URL ends in .webm must not die on the direct-file path."""
+    calls: list[str] = []
+
+    async def fake_direct(url: str, settings):
+        calls.append("direct")
+        raise extractor.ExtractionError(
+            "That URL serves 'text/html', not a media file.", code="not_media",
+        )
+
+    async def fake_extractor(url: str, settings):
+        calls.append("extractor")
+        return extractor.ProbeResult(
+            title="A freely licensed clip",
+            uploader="Wikimedia Commons",
+            uploader_url=None,
+            duration_seconds=30,
+            thumbnail_url=None,
+            description=None,
+            upload_date=None,
+            view_count=None,
+            license_name="CC BY-SA",
+            webpage_url=url,
+            source_name="wikimedia",
+            metadata_source="yt-dlp Wikimedia extractor",
+            formats=[MediaFormat(format_id="0", container="webm", quality_label="720p")],
+            recommended_format_id="0",
+        )
+
+    monkeypatch.setattr("backend.main.probe_direct_media", fake_direct)
+    monkeypatch.setattr("backend.main.probe_extractor_source", fake_extractor)
+
+    response = client.post(
+        "/api/inspect",
+        json={"url": "https://commons.wikimedia.org/wiki/File:Some_clip.webm"},
+    )
+    assert response.status_code == 200
+    body = response.json()
+    assert calls == ["direct", "extractor"]
+    assert body["source_kind"] == "extractor"
+    assert body["downloadable"] is True
+    assert body["title"] == "A freely licensed clip"
+
+
+def test_a_real_direct_file_error_is_not_swallowed(client, monkeypatch) -> None:
+    """Only 'not_media' falls through; a genuine failure still surfaces."""
+
+    async def fake_direct(url: str, settings):
+        raise extractor.ExtractionError("That URL returned HTTP 404.", code="http_error")
+
+    monkeypatch.setattr("backend.main.probe_direct_media", fake_direct)
+    response = client.post("/api/inspect", json={"url": "https://example.org/clip.mp4"})
+    assert response.status_code == 502
+    assert response.json()["code"] == "http_error"
+
+
 def test_unsupported_site_is_refused_with_a_clear_reason(client, monkeypatch) -> None:
     async def fake_probe(url: str, settings):
         raise extractor.SourceNotAllowed("That site is not on the allowlist.")

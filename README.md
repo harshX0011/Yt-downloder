@@ -50,10 +50,15 @@ media openly, with nothing to circumvent:
 | Wikimedia Commons | `commons.wikimedia.org` | Freely licensed media |
 | PeerTube | any PeerTube instance | Open, self-hosted federated video |
 | media.ccc.de | `media.ccc.de` | Creative Commons conference recordings |
+| TED | `ted.com` | Creative Commons talks TED itself publishes for download |
+| Odysee and LBRY | `odysee.com` | An open publishing protocol whose files are meant to be retrieved directly |
 | Direct media URL | any public host | A link that points straight at a file, e.g. `https://example.org/talk.mp4` |
 
 The list is configurable through `ALLOWED_EXTRACTORS`. Adding a source is a legal
 judgement, so it is yours to make deliberately, not a default.
+
+The UI offers each of these as a one-click example, so you can see a real file
+arrive without hunting for a link first.
 
 ---
 
@@ -104,7 +109,7 @@ backend/
   jobs.py        job registry, progress, TTL cleanup
   main.py        FastAPI routes, middleware, error translation
 frontend/        responsive single page, no build step, strict CSP
-tests/           102 tests covering policy, security and the full job lifecycle
+tests/           107 tests covering policy, security and the full job lifecycle
 vendor/yt-dlp/   the yt-dlp source, vendored for reference only
 ```
 
@@ -172,7 +177,7 @@ Every variable is documented in `.env.example`. The ones that matter most:
 | Variable | Default | Notes |
 | --- | --- | --- |
 | `YOUTUBE_API_KEY` | unset | Adds duration, views and licence to YouTube previews |
-| `ALLOWED_EXTRACTORS` | `ArchiveOrg,Wikimedia,PeerTube,CCC` | The download allowlist |
+| `ALLOWED_EXTRACTORS` | `ArchiveOrg,Wikimedia,PeerTube,CCC,TedTalk,LBRY` | The download allowlist |
 | `MAX_DOWNLOAD_BYTES` | 1 GiB | Enforced while transferring, not just from Content-Length |
 | `MAX_CONCURRENT_DOWNLOADS` | 2 | Server-wide |
 | `JOB_TTL_SECONDS` | 1800 | Finished files are deleted after this |
@@ -210,7 +215,7 @@ Every variable is documented in `.env.example`. The ones that matter most:
 ## Tests
 
 ```bash
-pytest -q          # 102 tests
+pytest -q          # 107 tests
 ruff check .
 ```
 
