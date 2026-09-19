@@ -1,0 +1,310 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Authorized Media Downloader</title>
+<meta name="description" content="Real metadata for any video link, and real MP4 downloads from openly published sources. An honest answer to why YouTube downloads are not offered.">
+<meta name="color-scheme" content="light dark">
+<link rel="icon" href="data:,">
+<style>
+/* Same tokens as the application frontend, so the two read as one product. */
+:root {
+  --bg: #f4f6fb;
+  --surface: #ffffff;
+  --surface-2: #f0f3fa;
+  --border: #dfe4ee;
+  --text: #16202f;
+  --text-muted: #5b6779;
+  --accent: #3b5bdb;
+  --accent-hover: #2f4bc4;
+  --accent-soft: #e8edfd;
+  --warning-border: #e8b84b;
+  --warning-bg: #fdf6e3;
+  --warning-text: #6b4c06;
+  --radius: 14px;
+  --radius-sm: 9px;
+  --shadow: 0 1px 2px rgba(16, 24, 40, .05), 0 8px 24px rgba(16, 24, 40, .06);
+  --font: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue",
+    Arial, "Noto Sans", sans-serif;
+  --mono: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, monospace;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #0e1319;
+    --surface: #151c25;
+    --surface-2: #1b242f;
+    --border: #2a3542;
+    --text: #e8edf4;
+    --text-muted: #9aa8b9;
+    --accent: #7c96f8;
+    --accent-hover: #93a9fb;
+    --accent-soft: #1e2a44;
+    --warning-border: #8a6d1f;
+    --warning-bg: #2b2413;
+    --warning-text: #f3d68a;
+    --shadow: 0 1px 2px rgba(0, 0, 0, .4), 0 10px 30px rgba(0, 0, 0, .35);
+  }
+}
+
+*, *::before, *::after { box-sizing: border-box; }
+[hidden] { display: none !important; }
+
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--font);
+  font-size: 16px;
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+}
+
+.wrap { width: 100%; max-width: 780px; margin: 0 auto; padding: 0 16px; }
+
+header.hero { padding-block: 48px 8px; }
+
+.eyebrow {
+  display: inline-block;
+  margin: 0 0 14px;
+  padding: 3px 10px;
+  font-size: .72rem;
+  font-weight: 700;
+  letter-spacing: .05em;
+  text-transform: uppercase;
+  border-radius: 999px;
+  background: var(--accent-soft);
+  color: var(--accent);
+}
+
+h1 {
+  margin: 0 0 12px;
+  font-size: clamp(1.7rem, 5vw, 2.4rem);
+  line-height: 1.15;
+  letter-spacing: -.02em;
+  text-wrap: balance;
+}
+
+.lede {
+  margin: 0 0 28px;
+  font-size: 1.06rem;
+  color: var(--text-muted);
+  max-width: 62ch;
+}
+
+.actions { display: flex; flex-wrap: wrap; gap: 12px; align-items: center; }
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-weight: 600;
+  text-decoration: none;
+  border: 1px solid transparent;
+  border-radius: var(--radius-sm);
+  padding: 11px 20px;
+  transition: background .15s, border-color .15s;
+}
+.btn-primary { background: var(--accent); color: #fff; }
+.btn-primary:hover { background: var(--accent-hover); }
+.btn-ghost { border-color: var(--border); color: var(--text); background: var(--surface); }
+.btn-ghost:hover { border-color: var(--accent); }
+.btn:focus-visible, a:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+section { padding-block: 26px; }
+
+h2 {
+  margin: 0 0 12px;
+  font-size: 1.1rem;
+  letter-spacing: -.01em;
+}
+
+p { margin: 0 0 14px; max-width: 68ch; }
+p:last-child { margin-bottom: 0; }
+
+.notice {
+  padding: 18px;
+  border-radius: var(--radius);
+  background: var(--warning-bg);
+  border: 1px solid var(--warning-border);
+  color: var(--warning-text);
+}
+.notice h2 { color: inherit; }
+.notice ul { margin: 0 0 14px; padding-left: 20px; }
+.notice li { margin-bottom: 7px; }
+.notice a { color: inherit; font-weight: 600; }
+
+.panel {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  padding: 22px;
+}
+
+table { width: 100%; border-collapse: collapse; font-size: .9rem; }
+th, td { text-align: left; padding: 9px 12px 9px 0; border-bottom: 1px solid var(--border); vertical-align: top; }
+th { font-size: .74rem; text-transform: uppercase; letter-spacing: .05em; color: var(--text-muted); font-weight: 700; }
+tbody tr:last-child td { border-bottom: 0; }
+td code { font-family: var(--mono); font-size: .84em; color: var(--text-muted); }
+
+.table-scroll { overflow-x: auto; }
+
+pre {
+  margin: 0;
+  padding: 14px 16px;
+  border-radius: var(--radius-sm);
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  overflow-x: auto;
+  font-family: var(--mono);
+  font-size: .84rem;
+  line-height: 1.6;
+}
+
+ol.steps { margin: 0; padding-left: 20px; }
+ol.steps li { margin-bottom: 10px; }
+ol.steps li:last-child { margin-bottom: 0; }
+
+.muted { color: var(--text-muted); font-size: .88rem; }
+
+footer {
+  border-top: 1px solid var(--border);
+  margin-top: 26px;
+  padding-block: 22px 40px;
+}
+footer p { font-size: .82rem; color: var(--text-muted); }
+
+a { color: var(--accent); }
+</style>
+</head>
+<body>
+
+<div class="wrap">
+
+  <header class="hero">
+    <p class="eyebrow">Open source</p>
+    <h1>Real metadata for any video link. Real MP4 downloads from openly published sources.</h1>
+    <p class="lede">
+      Paste a URL, see the actual title, thumbnail and duration, and download the
+      actual file when the source publishes one openly. No demo data, no
+      placeholder buttons, and nothing that works around a platform's protections.
+    </p>
+    <div class="actions">
+      <a class="btn btn-primary"
+         href="https://render.com/deploy?repo=https://github.com/harshX0011/Yt-downloder">
+        Deploy your own, free
+      </a>
+      <a class="btn btn-ghost" href="https://github.com/harshX0011/Yt-downloder">
+        View the source
+      </a>
+    </div>
+  </header>
+
+  <section>
+    <div class="notice">
+      <h2>Why this page cannot download anything</h2>
+      <p>
+        You are looking at a static page on GitHub Pages. The app itself is a
+        Python service that does the extraction and the file transfer, and Pages
+        cannot run one. Deploy it with the button above and you get a working
+        instance at your own URL in about five minutes.
+      </p>
+      <h2>And why no YouTube downloads, anywhere</h2>
+      <p>
+        There is no official or legal mechanism to turn a YouTube URL into an MP4
+        file, so this project does not provide one:
+      </p>
+      <ul>
+        <li>The YouTube Data API v3 returns metadata only. No Google API returns a media stream or a file.</li>
+        <li>YouTube's Terms of Service prohibit downloading except through a feature YouTube itself provides.</li>
+        <li>The only sanctioned downloads are Premium offline, inside the YouTube app, and YouTube Studio or Google Takeout for a channel you own. Neither is exposed programmatically.</li>
+        <li>Tools that fetch the streams anyway defeat YouTube's signature descrambling, rate limiting and bot detection. Those are technical protection measures, and this project does not work around them.</li>
+      </ul>
+      <p>
+        So a YouTube link here gets real metadata from an official Google endpoint,
+        the official embedded player, and a plain refusal that lists the authorized
+        alternatives. <code>POST /api/download</code> on a YouTube URL returns 422,
+        and a test keeps it that way.
+      </p>
+    </div>
+  </section>
+
+  <section>
+    <h2>What it does download, for real</h2>
+    <p class="muted">
+      An allowlist of sources that publish their media openly, with nothing to
+      circumvent. Extend it with <code>ALLOWED_EXTRACTORS</code>.
+    </p>
+    <div class="panel table-scroll">
+      <table>
+        <thead>
+          <tr><th scope="col">Source</th><th scope="col">Host</th><th scope="col">Why it qualifies</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>Internet Archive</td><td><code>archive.org</code></td><td>Public domain and openly licensed collections</td></tr>
+          <tr><td>Wikimedia Commons</td><td><code>commons.wikimedia.org</code></td><td>Freely licensed media</td></tr>
+          <tr><td>PeerTube</td><td><code>any instance</code></td><td>Open, self-hosted federated video</td></tr>
+          <tr><td>media.ccc.de</td><td><code>media.ccc.de</code></td><td>Creative Commons conference recordings</td></tr>
+          <tr><td>Direct media URL</td><td><code>any public host</code></td><td>A link straight to a file, such as a published .mp4</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <section>
+    <h2>Get a live instance</h2>
+    <div class="panel">
+      <ol class="steps">
+        <li>Click <strong>Deploy your own, free</strong> above and sign in to Render with GitHub.</li>
+        <li>
+          Render asks for <code>YOUTUBE_API_KEY</code>. Paste one from the Google
+          Cloud Console with <em>YouTube Data API v3</em> enabled, or leave it
+          blank: the app still runs on YouTube's public oEmbed endpoint, just
+          without durations.
+        </li>
+        <li>
+          Apply. The first Docker build takes four to six minutes, then
+          <code>/api/health</code> answers <code>{"status":"ok"}</code> at your URL.
+        </li>
+      </ol>
+    </div>
+    <p class="muted" style="margin-top:14px">
+      Free instances sleep after 15 minutes idle and take about a minute to wake.
+      To run it on your own machine instead:
+    </p>
+    <pre><code>git clone https://github.com/harshX0011/Yt-downloder.git
+cd Yt-downloder
+docker compose up --build
+# then open http://localhost:8000</code></pre>
+  </section>
+
+  <section>
+    <h2>How it is built</h2>
+    <p>
+      A FastAPI backend with a job queue, server-sent progress and ffmpeg remuxing
+      to MP4, behind a responsive single-page frontend with no build step. Every
+      outbound URL and every redirect hop is checked against private, loopback,
+      link-local and IPv4-mapped-IPv6 ranges before it is fetched, the byte ceiling
+      is enforced while the transfer runs rather than trusted from
+      <code>Content-Length</code>, and yt-dlp is driven with geo-bypass off, no
+      cookies and its own extractor allowlist pinned to the list above.
+    </p>
+    <p>
+      102 tests, linted, and CI builds the container image and smoke-tests it
+      running on every push.
+    </p>
+  </section>
+
+  <footer>
+    <p>
+      MIT licensed. Downloading media does not grant you rights to it: respect each
+      source's licence and the rights of the people who made the work.
+    </p>
+  </footer>
+
+</div>
+
+</body>
+</html>
