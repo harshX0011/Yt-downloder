@@ -39,6 +39,8 @@ const dom = {
   blockedBlock: el("blocked-block"),
   blockedReason: el("blocked-reason"),
   alternatives: el("alternatives"),
+  examples: el("examples"),
+  exampleChips: el("example-chips"),
   policySources: el("policy-sources"),
   policyLimits: el("policy-limits"),
   policyYoutube: el("policy-youtube"),
@@ -508,6 +510,22 @@ async function loadPolicy() {
       "The source policy could not be loaded from the server.";
     return;
   }
+
+  dom.exampleChips.replaceChildren();
+  for (const source of policy.allowed_sources) {
+    if (!source.example) continue;
+    const chip = document.createElement("button");
+    chip.type = "button";
+    chip.className = "chip";
+    chip.textContent = source.name;
+    chip.title = source.example;
+    chip.addEventListener("click", () => {
+      dom.url.value = source.example;
+      dom.form.requestSubmit();
+    });
+    dom.exampleChips.appendChild(chip);
+  }
+  dom.examples.hidden = dom.exampleChips.childElementCount === 0;
 
   dom.policySources.replaceChildren();
   for (const source of policy.allowed_sources) {

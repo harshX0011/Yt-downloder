@@ -67,6 +67,8 @@ def _env_list(name: str, default: tuple[str, ...]) -> tuple[str, ...]:
 #   Wikimedia   - commons.wikimedia.org, freely licensed media
 #   PeerTube    - open, self-hosted ActivityPub video instances
 #   CCC         - media.ccc.de, Creative Commons conference recordings
+#   TedTalk     - ted.com, Creative Commons talks TED itself offers for download
+#   LBRY        - odysee.com and other LBRY clients, an open publishing protocol
 #
 # Extend it at your own legal discretion with ALLOWED_EXTRACTORS.
 DEFAULT_ALLOWED_EXTRACTORS: tuple[str, ...] = (
@@ -74,6 +76,8 @@ DEFAULT_ALLOWED_EXTRACTORS: tuple[str, ...] = (
     "Wikimedia",
     "PeerTube",
     "CCC",
+    "TedTalk",
+    "LBRY",
 )
 
 # Hosts handled by the official metadata path only. These never reach yt-dlp.

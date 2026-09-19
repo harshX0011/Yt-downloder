@@ -116,39 +116,65 @@ def allowed_sources_summary(settings: Settings) -> list[dict[str, str]]:
             "Internet Archive",
             "archive.org",
             "Public domain and openly licensed audio and video collections.",
+            "https://archive.org/details/Cops1922",
         ),
         "Wikimedia": (
             "Wikimedia Commons",
             "commons.wikimedia.org",
             "Freely licensed media from the Wikimedia projects.",
+            "https://commons.wikimedia.org/wiki/File:Die_Temperaturkurve_der_Erde_"
+            "(ZDF,_Terra_X)_720p_HD_50FPS.webm",
         ),
         "PeerTube": (
             "PeerTube",
             "any PeerTube instance",
             "Open, self-hosted federated video instances.",
+            "https://framatube.org/videos/watch/9c9de5e8-0a1e-484a-b099-e80766180a6d",
         ),
         "CCC": (
             "media.ccc.de",
             "media.ccc.de",
             "Creative Commons licensed conference recordings.",
+            "https://media.ccc.de/v/32c3-7368-shopshifting",
+        ),
+        "TedTalk": (
+            "TED",
+            "ted.com",
+            "Creative Commons talks that TED itself publishes for download.",
+            "https://www.ted.com/talks/candace_parker_how_to_break_down_barriers_"
+            "and_not_accept_limits",
+        ),
+        "LBRY": (
+            "Odysee and LBRY",
+            "odysee.com",
+            "An open publishing protocol whose files are meant to be retrieved directly.",
+            "https://odysee.com/@gardeningincanada:b/plants-i-will-never-grow-again.-the:e",
         ),
     }
 
     summary: list[dict[str, str]] = []
     for key in settings.allowed_extractors:
-        name, host, description = known.get(
-            key, (key, "see yt-dlp extractor list", "Enabled through ALLOWED_EXTRACTORS."),
+        name, host, description, example = known.get(
+            key,
+            (key, "see yt-dlp extractor list", "Enabled through ALLOWED_EXTRACTORS.", ""),
         )
-        summary.append({"key": key, "name": name, "host": host, "description": description})
+        summary.append({
+            "key": key,
+            "name": name,
+            "host": host,
+            "description": description,
+            "example": example,
+        })
 
     if settings.allow_direct_media_urls:
         summary.append({
             "key": "DirectMedia",
             "name": "Direct media URL",
             "host": "any public https:// host",
-            "description": (
-                "A link that points straight at a media file, for example "
-                "https://example.org/talk.mp4"
+            "description": "A link that points straight at a media file.",
+            "example": (
+                "https://upload.wikimedia.org/wikipedia/commons/transcoded/"
+                "2/22/Volcano_Lava_Sample.webm/Volcano_Lava_Sample.webm.360p.webm"
             ),
         })
 

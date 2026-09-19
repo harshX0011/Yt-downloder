@@ -88,10 +88,11 @@ def test_unknown_page_goes_to_the_extractor_path(settings) -> None:
 
 
 def test_allowlist_membership(settings) -> None:
-    assert is_extractor_allowed("ArchiveOrg", settings) is True
-    assert is_extractor_allowed("Wikimedia", settings) is True
+    for key in ("ArchiveOrg", "Wikimedia", "PeerTube", "CCC", "TedTalk", "LBRY"):
+        assert is_extractor_allowed(key, settings) is True
     # The point of the allowlist: YouTube's extractor is never permitted.
     assert is_extractor_allowed("Youtube", settings) is False
+    assert is_extractor_allowed("YoutubeTab", settings) is False
     assert is_extractor_allowed("Generic", settings) is False
 
 
@@ -101,3 +102,31 @@ def test_allowed_sources_summary_describes_every_entry(settings) -> None:
     for entry in summary:
         assert entry["name"] and entry["host"] and entry["description"]
     assert not any(entry["name"] == "YouTube" for entry in summary)
+
+
+def test_every_source_offers_a_paste_and_go_example(settings) -> None:
+    """The UI turns these into one-click chips, so a missing one is a dead chip."""
+    for entry in allowed_sources_summary(settings):
+        example = entry["example"]
+        assert example.startswith("https://"), entry["name"]
+        # An example pointing at YouTube would contradict the whole policy.
+        assert "youtube.com" not in example
+        assert "youtu.be" not in example
+
+
+def test_no_example_is_ever_routed_to_the_youtube_path(settings) -> None:
+    for entry in allowed_sources_summary(settings):
+        decision = classify(entry["example"], settings)
+        assert decision.kind is not SourceKind.YOUTUBE, entry["name"]
+
+
+def test_a_page_url_ending_in_a_media_extension_is_only_a_guess(settings) -> None:
+    """classify() reads the path alone, so a wiki File: page guesses wrong.
+
+    The origin's content type settles it in `backend.main._probe_source`.
+    """
+    wiki_page = (
+        "https://commons.wikimedia.org/wiki/File:Die_Temperaturkurve_der_Erde_"
+        "(ZDF,_Terra_X)_720p_HD_50FPS.webm"
+    )
+    assert classify(wiki_page, settings).kind is SourceKind.DIRECT_MEDIA
