@@ -137,11 +137,29 @@ Install `ffmpeg` too if you want split audio and video streams merged and remuxe
 to MP4. Without it the app still downloads, but only offers single-file
 renditions, and `/api/health` reports `"ffmpeg": false`.
 
-### Deploy
+### Get a live URL
 
-- **Render**: import the repo. `render.yaml` is a blueprint; set `YOUTUBE_API_KEY`
-  in the dashboard.
-- **Railway, Fly.io, Heroku-style hosts**: the `Procfile` and `Dockerfile` both work.
+[![Deploy to Render](https://render.com/images/deploy-to-render-button.svg)](https://render.com/deploy?repo=https://github.com/harshX0011/Yt-downloder)
+
+That button reads `render.yaml` and creates a **free** web service. Three steps:
+
+1. Click it and sign in to Render with GitHub.
+2. Render prompts for `YOUTUBE_API_KEY`. Paste one from
+   [Google Cloud Console](https://console.cloud.google.com/apis/credentials) with
+   *YouTube Data API v3* enabled, or leave it blank; the app still runs on
+   YouTube's public oEmbed endpoint, just without durations.
+3. Apply. The first Docker build takes four to six minutes. Your URL is then
+   `https://<service-name>.onrender.com`, and `/api/health` should return
+   `{"status":"ok"}`.
+
+Free instances sleep after 15 minutes idle and take about a minute to wake, and
+they have 512 MB of RAM with an ephemeral disk, so `render.yaml` caps downloads
+at 256 MB and one at a time. Switch `plan` to `starter` for an always-on
+instance and raise the limits.
+
+Other hosts:
+
+- **Railway, Fly.io, Heroku-style**: the `Procfile` and `Dockerfile` both work.
 - **Anywhere else**: the container listens on `$PORT` and answers `/api/health`.
 
 Behind a reverse proxy, set `TRUST_FORWARDED_FOR=true` so rate limiting sees the

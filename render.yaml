@@ -1,21 +1,33 @@
-# Render blueprint. Import this repository at https://render.com and Render
-# reads this file. YOUTUBE_API_KEY is marked sync:false so it is entered in the
-# dashboard rather than committed.
+# Render blueprint.
+#
+# One-click: https://render.com/deploy?repo=https://github.com/harshX0011/Yt-downloder
+# Or: Render dashboard, New, Blueprint, pick this repository. Render reads this
+# file and creates the service.
+#
+# `plan: free` costs nothing. Free instances sleep after 15 minutes of no
+# traffic and take roughly a minute to wake, and they get 512 MB of RAM and an
+# ephemeral disk, which is why the limits below are smaller than the app's
+# defaults. Change to `starter` for an always-on paid instance and raise them.
+#
+# YOUTUBE_API_KEY is sync:false so Render prompts for it instead of it being
+# committed here. The app runs without it, using YouTube's public oEmbed
+# endpoint, but then previews carry no duration.
 services:
   - type: web
     name: authorized-media-downloader
     runtime: docker
     dockerfilePath: ./Dockerfile
-    plan: starter
+    plan: free
     healthCheckPath: /api/health
     envVars:
       - key: YOUTUBE_API_KEY
         sync: false
       - key: TRUST_FORWARDED_FOR
         value: "true"
+      # 256 MB per file, to stay inside a free instance's ephemeral disk.
       - key: MAX_DOWNLOAD_BYTES
-        value: "536870912"
+        value: "268435456"
       - key: MAX_CONCURRENT_DOWNLOADS
-        value: "2"
+        value: "1"
       - key: JOB_TTL_SECONDS
-        value: "900"
+        value: "600"
