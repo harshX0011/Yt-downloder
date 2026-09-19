@@ -1,0 +1,29 @@
+line-length = 100
+target-version = "py311"
+
+# The vendored yt-dlp tree is third-party source, linted by its own config.
+extend-exclude = ["vendor", ".venv"]
+
+[lint]
+select = [
+    "E", "W",    # pycodestyle
+    "F",         # pyflakes
+    "I",         # isort
+    "UP",        # pyupgrade
+    "B",         # bugbear
+    "C4",        # comprehensions
+    "SIM",       # simplify
+    "RUF",       # ruff-specific
+    "S",         # bandit
+    "ASYNC",     # async correctness
+]
+ignore = [
+    "S104",  # binding 0.0.0.0 is intentional for containers
+    "B008",  # FastAPI's Depends() in defaults is the documented pattern
+]
+
+[lint.per-file-ignores]
+"tests/*" = ["S101", "S105", "S106"]  # asserts and dummy secrets are the point
+
+[lint.isort]
+known-first-party = ["backend"]
