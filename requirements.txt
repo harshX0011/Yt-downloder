@@ -1,0 +1,9 @@
+# Runtime dependencies for the Authorized Media Downloader backend.
+fastapi==0.141.1
+uvicorn[standard]==0.40.0
+httpx==0.28.1
+
+# Extraction engine. Used ONLY for the authorized source allowlist in
+# backend/sources.py (Internet Archive, Wikimedia Commons, PeerTube,
+# media.ccc.de). It is never pointed at YouTube. See README.md.
+yt-dlp==2026.8.19

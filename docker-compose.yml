@@ -1,0 +1,23 @@
+services:
+  app:
+    build: .
+    image: authorized-media-downloader
+    ports:
+      - "8000:8000"
+    environment:
+      # Official YouTube metadata. Without a key the app falls back to oEmbed,
+      # which carries no duration. See .env.example.
+      YOUTUBE_API_KEY: "${YOUTUBE_API_KEY:-}"
+      MAX_DOWNLOAD_BYTES: "${MAX_DOWNLOAD_BYTES:-1073741824}"
+      MAX_CONCURRENT_DOWNLOADS: "${MAX_CONCURRENT_DOWNLOADS:-2}"
+      JOB_TTL_SECONDS: "${JOB_TTL_SECONDS:-1800}"
+      TRUST_FORWARDED_FOR: "${TRUST_FORWARDED_FOR:-false}"
+    tmpfs:
+      # Finished files are transient, so keep them off the image layer.
+      - /var/tmp/amd-downloads:size=2g
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-fsS", "http://127.0.0.1:8000/api/health"]
+      interval: 30s
+      timeout: 5s
+      retries: 3

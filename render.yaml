@@ -1,0 +1,21 @@
+# Render blueprint. Import this repository at https://render.com and Render
+# reads this file. YOUTUBE_API_KEY is marked sync:false so it is entered in the
+# dashboard rather than committed.
+services:
+  - type: web
+    name: authorized-media-downloader
+    runtime: docker
+    dockerfilePath: ./Dockerfile
+    plan: starter
+    healthCheckPath: /api/health
+    envVars:
+      - key: YOUTUBE_API_KEY
+        sync: false
+      - key: TRUST_FORWARDED_FOR
+        value: "true"
+      - key: MAX_DOWNLOAD_BYTES
+        value: "536870912"
+      - key: MAX_CONCURRENT_DOWNLOADS
+        value: "2"
+      - key: JOB_TTL_SECONDS
+        value: "900"

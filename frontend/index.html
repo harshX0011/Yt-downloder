@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Authorized Media Downloader</title>
+<meta name="description" content="Inspect a media URL, see its real metadata, and download the file from sources that publish it openly.">
+<meta name="color-scheme" content="light dark">
+<link rel="icon" href="data:,">
+<link rel="stylesheet" href="/styles.css">
+</head>
+<body>
+<a class="skip-link" href="#main">Skip to content</a>
+
+<header class="site-header">
+  <div class="wrap header-inner">
+    <div class="brand">
+      <span class="brand-mark" aria-hidden="true"></span>
+      <div>
+        <h1>Authorized Media Downloader</h1>
+        <p class="tagline">Real metadata for any video link. Real MP4 downloads from openly published sources.</p>
+      </div>
+    </div>
+  </div>
+</header>
+
+<main id="main" class="wrap">
+
+  <section class="panel" aria-labelledby="form-heading">
+    <h2 id="form-heading" class="panel-title">Check a video</h2>
+    <form id="inspect-form" novalidate>
+      <div class="field">
+        <label for="url">Video or media URL</label>
+        <div class="input-row">
+          <input
+            id="url"
+            name="url"
+            type="url"
+            inputmode="url"
+            autocomplete="off"
+            spellcheck="false"
+            placeholder="https://www.youtube.com/watch?v=..."
+            aria-describedby="url-hint"
+            required>
+          <button type="submit" id="check-button" class="btn btn-primary">
+            <span class="btn-label">Check Video</span>
+            <span class="spinner" aria-hidden="true"></span>
+          </button>
+        </div>
+        <p id="url-hint" class="hint">
+          Paste a YouTube link to read its official metadata, or a link from a
+          supported source to download the file.
+        </p>
+      </div>
+    </form>
+
+    <div id="alert" class="alert" role="alert" aria-live="assertive" hidden></div>
+  </section>
+
+  <section id="result" class="panel result" aria-labelledby="result-heading" hidden>
+    <h2 id="result-heading" class="visually-hidden">Result</h2>
+
+    <div class="media-layout">
+      <div class="media-figure">
+        <div id="embed-holder" class="embed" hidden></div>
+        <img id="thumbnail" class="thumb" alt="" hidden>
+        <div id="thumb-fallback" class="thumb thumb-empty" hidden>
+          <span>No preview image published</span>
+        </div>
+      </div>
+
+      <div class="media-body">
+        <p id="source-badge" class="badge"></p>
+        <h3 id="title" class="media-title"></h3>
+        <dl id="meta" class="meta-grid"></dl>
+        <p id="description" class="description" hidden></p>
+        <p class="metadata-source" id="metadata-source"></p>
+      </div>
+    </div>
+
+    <div id="download-block" class="download-block" hidden>
+      <div class="field field-inline">
+        <label for="format">Quality</label>
+        <select id="format" name="format"></select>
+      </div>
+      <button type="button" id="download-button" class="btn btn-primary btn-download">
+        <span class="btn-label">Download MP4</span>
+        <span class="spinner" aria-hidden="true"></span>
+      </button>
+      <button type="button" id="cancel-button" class="btn btn-ghost" hidden>Cancel</button>
+    </div>
+
+    <div id="progress-block" class="progress-block" hidden>
+      <div class="progress-head">
+        <span id="progress-state" class="progress-state"></span>
+        <span id="progress-detail" class="progress-detail"></span>
+      </div>
+      <div
+        class="progress-track"
+        role="progressbar"
+        id="progress-bar"
+        aria-valuemin="0"
+        aria-valuemax="100"
+        aria-valuenow="0"
+        aria-labelledby="progress-state">
+        <div id="progress-fill" class="progress-fill"></div>
+      </div>
+      <p id="progress-live" class="visually-hidden" aria-live="polite"></p>
+    </div>
+
+    <div id="ready-block" class="ready-block" hidden>
+      <div>
+        <p class="ready-title">Your file is ready</p>
+        <p id="ready-detail" class="ready-detail"></p>
+      </div>
+      <a id="save-link" class="btn btn-success" download>Save file</a>
+    </div>
+
+    <div id="blocked-block" class="blocked-block" hidden>
+      <h4 class="blocked-title">
+        <span class="blocked-icon" aria-hidden="true"></span>
+        No authorized download is available for this source
+      </h4>
+      <p id="blocked-reason" class="blocked-reason"></p>
+      <h5 class="alt-heading">Official ways to get this video</h5>
+      <ul id="alternatives" class="alt-list"></ul>
+    </div>
+  </section>
+
+  <section class="panel" aria-labelledby="policy-heading">
+    <h2 id="policy-heading" class="panel-title">What this app downloads</h2>
+    <p class="policy-intro">
+      A file download is only offered when the source publishes it openly, with no
+      authentication, DRM, CAPTCHA, rate limit or signature scheme to work around.
+    </p>
+    <ul id="policy-sources" class="source-list"></ul>
+    <p id="policy-limits" class="policy-limits"></p>
+    <details class="policy-details">
+      <summary>Why YouTube downloads are not offered</summary>
+      <p id="policy-youtube"></p>
+      <p>
+        YouTube's own metadata endpoints are used for the preview above, so the title,
+        channel, duration and thumbnail you see are real. Nothing on this page is
+        demo data.
+      </p>
+    </details>
+  </section>
+
+</main>
+
+<footer class="site-footer">
+  <div class="wrap">
+    <p>
+      Downloads are stored temporarily on the server and deleted automatically.
+      Respect each source's licence and the rights of the people who made the work.
+    </p>
+  </div>
+</footer>
+
+<script src="/app.js" defer></script>
+</body>
+</html>
